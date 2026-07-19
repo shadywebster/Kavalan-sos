@@ -1,0 +1,6 @@
+{
+  "name": "Kavalan SOS",
+  "description": "Tamil Nadu Women Safety app offering direct SOS calling, real-time GPS tracking, emergency contact alerts, voice recording, emergency siren, and local police station directory.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

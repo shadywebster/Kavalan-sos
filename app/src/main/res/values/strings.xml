@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Kavalan SOS</string>
+    <string name="attribution_location_label">Location for Emergency Alerts</string>
+    <string name="attribution_microphone_label">Microphone for Audio Recording</string>
+</resources>

@@ -156,7 +156,7 @@ fun KavalanApp(viewModel: KavalanViewModel) {
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
                     icon = { Icon(Icons.Outlined.Emergency, contentDescription = "SOS") },
-                    label = { Text("SOS Dashboard", fontSize = 11.sp) },
+                    label = { Text("SOS Dashboard", fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF1D1B20),
                         selectedTextColor = Color(0xFF1D1B20),
@@ -169,7 +169,7 @@ fun KavalanApp(viewModel: KavalanViewModel) {
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
                     icon = { Icon(Icons.Outlined.People, contentDescription = "Guardians") },
-                    label = { Text("Guardians", fontSize = 11.sp) },
+                    label = { Text("Guardians", fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF1D1B20),
                         selectedTextColor = Color(0xFF1D1B20),
@@ -181,8 +181,8 @@ fun KavalanApp(viewModel: KavalanViewModel) {
                 NavigationBarItem(
                     selected = selectedTab == 2,
                     onClick = { selectedTab = 2 },
-                    icon = { Icon(Icons.Outlined.LocalPolice, contentDescription = "Stations") },
-                    label = { Text("Stations", fontSize = 11.sp) },
+                    icon = { Icon(Icons.Outlined.AutoAwesome, contentDescription = "AI Assistant") },
+                    label = { Text("AI Assistant", fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF1D1B20),
                         selectedTextColor = Color(0xFF1D1B20),
@@ -194,8 +194,21 @@ fun KavalanApp(viewModel: KavalanViewModel) {
                 NavigationBarItem(
                     selected = selectedTab == 3,
                     onClick = { selectedTab = 3 },
+                    icon = { Icon(Icons.Outlined.LocalPolice, contentDescription = "Stations") },
+                    label = { Text("Stations", fontSize = 10.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF1D1B20),
+                        selectedTextColor = Color(0xFF1D1B20),
+                        unselectedIconColor = Color(0xFF49454F),
+                        unselectedTextColor = Color(0xFF49454F),
+                        indicatorColor = Color(0xFFE8DEF8)
+                    )
+                )
+                NavigationBarItem(
+                    selected = selectedTab == 4,
+                    onClick = { selectedTab = 4 },
                     icon = { Icon(Icons.Outlined.VerifiedUser, contentDescription = "Safety Tips") },
-                    label = { Text("Defense Tips", fontSize = 11.sp) },
+                    label = { Text("Defense Tips", fontSize = 10.sp) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = Color(0xFF1D1B20),
                         selectedTextColor = Color(0xFF1D1B20),
@@ -224,19 +237,22 @@ fun KavalanApp(viewModel: KavalanViewModel) {
                     isSirenPlaying = isSirenPlaying,
                     records = records,
                     playingRecId = playingRecId,
-                    onTipsClick = { selectedTab = 3 }
+                    onTipsClick = { selectedTab = 4 }
                 )
                 1 -> GuardiansView(
                     contacts = contacts,
                     onAddContactClick = { showAddContactDialog = true },
                     onRemoveContact = { viewModel.removeContact(it) }
                 )
-                2 -> StationsDirectoryView(
+                2 -> AiAssistantView(
+                    viewModel = viewModel
+                )
+                3 -> StationsDirectoryView(
                     stations = stations,
                     context = context,
                     gpsLoc = gpsLoc
                 )
-                3 -> DefenseTipsView(
+                4 -> DefenseTipsView(
                     tips = tips
                 )
             }
@@ -608,6 +624,161 @@ fun SosDashboardView(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        // Section: LIVE REAL-TIME LOCATION TRACKER CARD
+        item {
+            val isLiveTracking by viewModel.isLiveTracking.collectAsState()
+            val trackingPath by viewModel.liveTrackingPath.collectAsState()
+            
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(if (isLiveTracking) Color(0xFFE8DEF8) else SurfaceDark, RoundedCornerShape(20.dp))
+                    .border(
+                        1.dp, 
+                        if (isLiveTracking) SafetyCoral else Color(0xFFCAC4D0), 
+                        RoundedCornerShape(20.dp)
+                    )
+                    .padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(if (isLiveTracking) SafetyCoral.copy(alpha = 0.15f) else Color(0xFFEADDFF), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = if (isLiveTracking) Icons.Filled.MyLocation else Icons.Outlined.MyLocation,
+                                contentDescription = "Live GPS Tracker",
+                                tint = if (isLiveTracking) SafetyCoral else TextLight,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "REAL-TIME TRACKING",
+                                color = if (isLiveTracking) SafetyCoral else TextMuted,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
+                            )
+                            Text(
+                                text = if (isLiveTracking) "Active Live Broadcast" else "Live Location Tracker",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 15.sp,
+                                color = TextLight
+                            )
+                        }
+                    }
+                    
+                    // Switch / Button toggle
+                    Button(
+                        onClick = { viewModel.toggleLiveTracking() },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isLiveTracking) SafetyAmber else SafetyCoral
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                        modifier = Modifier.height(34.dp)
+                    ) {
+                        Text(
+                            text = if (isLiveTracking) "STOP" else "START",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                if (isLiveTracking) {
+                    // Pulsating indicators and list of paths
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Custom blinking live indicator
+                        var tick by remember { mutableStateOf(true) }
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                delay(700)
+                                tick = !tick
+                            }
+                        }
+                        
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(if (tick) SafetyAmber else Color.Transparent)
+                        )
+                        
+                        Spacer(modifier = Modifier.width(10.dp))
+                        
+                        Text(
+                            text = "Sending real-time GPS coords to Guardians every 10s...",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextLight
+                        )
+                    }
+                    
+                    if (trackingPath.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "RECENT PATH LOGS (REAL-TIME):",
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Black,
+                            color = TextMuted,
+                            letterSpacing = 0.5.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            trackingPath.takeLast(4).reversed().forEachIndexed { index, pos ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.TripOrigin,
+                                        contentDescription = null,
+                                        tint = if (index == 0) SafetyCoral else TextMuted.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(10.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = String.format(Locale.US, "Point %d: %.5f, %.5f (Live Node)", trackingPath.size - index, pos.latitude, pos.longitude),
+                                        fontSize = 11.sp,
+                                        color = if (index == 0) TextLight else TextMuted,
+                                        fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Text(
+                        text = "Turn this on to stream continuous real-time coordinates to family and police dispatch during transit.",
+                        fontSize = 11.sp,
+                        color = TextMuted,
+                        lineHeight = 15.sp,
+                        modifier = Modifier.padding(start = 2.dp)
+                    )
                 }
             }
         }
@@ -1456,8 +1627,10 @@ fun StationsDirectoryView(
 
 @Composable
 fun DefenseTipsView(tips: List<SafetyTip>) {
+    var activeSubTab by remember { mutableStateOf(0) } // 0 = Tactical Manual, 1 = Tamil Video Library
     var expandedTipId by remember { mutableStateOf<Int?>(null) }
     var selectedCategory by remember { mutableStateOf("All") }
+    val context = LocalContext.current
 
     val categories = listOf("All", "Physical Defense", "Digital Safety", "Emergency Action", "Rights & Law")
 
@@ -1483,151 +1656,307 @@ fun DefenseTipsView(tips: List<SafetyTip>) {
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
-        // Horizontal Category Row Filters
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
+        // Sub-Tabs Toggle Row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+                .background(Color(0xFFEADDFF).copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                .padding(4.dp)
         ) {
-            items(categories) { category ->
-                val isSelected = selectedCategory == category
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(if (isSelected) SafetyCoral else SurfaceDark)
-                        .clickable { selectedCategory = category }
-                        .padding(horizontal = 14.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = category,
-                        color = if (isSelected) DeepCharcoal else TextLight,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp
-                    )
-                }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (activeSubTab == 0) SafetyCoral else Color.Transparent)
+                    .clickable { activeSubTab = 0 }
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Tactical Manual",
+                    color = if (activeSubTab == 0) Color.White else TextLight,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (activeSubTab == 1) SafetyCoral else Color.Transparent)
+                    .clickable { activeSubTab = 1 }
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Tamil Video Library",
+                    color = if (activeSubTab == 1) Color.White else TextLight,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        if (activeSubTab == 0) {
+            // Horizontal Category Row Filters
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(categories) { category ->
+                    val isSelected = selectedCategory == category
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isSelected) SafetyCoral else SurfaceDark)
+                            .clickable { selectedCategory = category }
+                            .padding(horizontal = 14.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            text = category,
+                            color = if (isSelected) DeepCharcoal else TextLight,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            }
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            items(filteredTips) { tip ->
-                val isExpanded = expandedTipId == tip.id
+            Spacer(modifier = Modifier.height(14.dp))
 
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = SurfaceDark),
-                    border = BorderStroke(1.dp, Color(0xFFCAC4D0)),
-                    shape = RoundedCornerShape(14.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            expandedTipId = if (isExpanded) null else tip.id
-                        }
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = tip.category.uppercase(),
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 9.sp,
-                                    color = SafetyCoral,
-                                    letterSpacing = 0.5.sp
-                                )
-                                Text(
-                                    text = tip.title,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = TextLight
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(filteredTips) { tip ->
+                    val isExpanded = expandedTipId == tip.id
+
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+                        border = BorderStroke(1.dp, Color(0xFFCAC4D0)),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                expandedTipId = if (isExpanded) null else tip.id
+                            }
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = tip.category.uppercase(),
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = 9.sp,
+                                        color = SafetyCoral,
+                                        letterSpacing = 0.5.sp
+                                    )
+                                    Text(
+                                        text = tip.title,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = TextLight
+                                    )
+                                }
+                                Icon(
+                                    imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = "Expand/Collapse",
+                                    tint = TextMuted
                                 )
                             }
-                            Icon(
-                                imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                contentDescription = "Expand/Collapse",
-                                tint = TextMuted
-                            )
-                        }
 
-                        // Detailed expanded content
-                        if (isExpanded) {
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Divider(color = TextMuted.copy(alpha = 0.2f))
-                            Spacer(modifier = Modifier.height(8.dp))
+                            // Detailed expanded content
+                            if (isExpanded) {
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Divider(color = TextMuted.copy(alpha = 0.2f))
+                                Spacer(modifier = Modifier.height(8.dp))
 
-                            Text(
-                                text = tip.content,
-                                fontSize = 13.sp,
-                                color = TextMuted,
-                                lineHeight = 18.sp
-                            )
+                                Text(
+                                    text = tip.content,
+                                    fontSize = 13.sp,
+                                    color = TextMuted,
+                                    lineHeight = 18.sp
+                                )
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
 
-                            Text(
-                                text = "TACTICAL STEPS / ADVICE:",
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = SafetyAmber,
-                                letterSpacing = 0.5.sp
-                            )
+                                Text(
+                                    text = "TACTICAL STEPS / ADVICE:",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SafetyAmber,
+                                    letterSpacing = 0.5.sp
+                                )
 
-                            Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
 
-                            // Steps breakdown
-                            val stepsList = tip.steps.split(";")
-                            stepsList.forEachIndexed { index, step ->
-                                if (step.isNotBlank()) {
-                                    val parts = step.split(":", limit = 2)
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        verticalAlignment = Alignment.Top
-                                    ) {
-                                        Box(
+                                // Steps breakdown
+                                val stepsList = tip.steps.split(";")
+                                stepsList.forEachIndexed { index, step ->
+                                    if (step.isNotBlank()) {
+                                        val parts = step.split(":", limit = 2)
+                                        Row(
                                             modifier = Modifier
-                                                .padding(top = 2.dp)
-                                                .size(16.dp)
-                                                .background(SafetyCoral.copy(alpha = 0.2f), CircleShape),
-                                            contentAlignment = Alignment.Center
+                                                .fillMaxWidth()
+                                                .padding(vertical = 4.dp),
+                                            verticalAlignment = Alignment.Top
                                         ) {
-                                            Text(
-                                                text = (index + 1).toString(),
-                                                color = SafetyCoral,
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.width(10.dp))
-                                        Column {
-                                            if (parts.size == 2) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .padding(top = 2.dp)
+                                                    .size(16.dp)
+                                                    .background(SafetyCoral.copy(alpha = 0.2f), CircleShape),
+                                                contentAlignment = Alignment.Center
+                                            ) {
                                                 Text(
-                                                    text = parts[0].trim(),
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontSize = 13.sp,
-                                                    color = TextLight
+                                                    text = (index + 1).toString(),
+                                                    color = SafetyCoral,
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold
                                                 )
-                                                Text(
-                                                    text = parts[1].trim(),
-                                                    fontSize = 12.sp,
-                                                    color = TextMuted
-                                                )
-                                            } else {
-                                                Text(
-                                                    text = step.trim(),
-                                                    fontSize = 13.sp,
-                                                    color = TextLight
-                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Column {
+                                                if (parts.size == 2) {
+                                                    Text(
+                                                        text = parts[0].trim(),
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 13.sp,
+                                                        color = TextLight
+                                                    )
+                                                    Text(
+                                                        text = parts[1].trim(),
+                                                        fontSize = 12.sp,
+                                                        color = TextMuted
+                                                    )
+                                                } else {
+                                                    Text(
+                                                        text = step.trim(),
+                                                        fontSize = 13.sp,
+                                                        color = TextLight
+                                                    )
+                                                }
                                             }
                                         }
                                     }
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // Tamil Defense Videos section
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                items(tamilDefenseVideos) { video ->
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+                        border = BorderStroke(1.dp, Color(0xFFCAC4D0)),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            // Cinematic visual thumbnail placeholder with play button
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(130.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(Color(0xFF31111D), SafetyAmber.copy(alpha = 0.85f))
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Filled.PlayCircleFilled,
+                                        contentDescription = "Play Video",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(50.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "வீடியோவைப் பார்க்கவும் (WATCH)",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = 12.sp,
+                                        letterSpacing = 0.5.sp
+                                    )
+                                }
+                                
+                                // Duration tag
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(8.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(Color.Black.copy(alpha = 0.7f))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = video.duration,
+                                        color = Color.White,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Text(
+                                text = video.tamilTitle,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 16.sp,
+                                color = TextLight
+                            )
+                            Text(
+                                text = video.title,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = SafetyCoral
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = video.tamilDesc,
+                                fontSize = 12.sp,
+                                color = TextMuted,
+                                lineHeight = 16.sp
+                            )
+                            Text(
+                                text = video.description,
+                                fontSize = 11.sp,
+                                color = TextMuted.copy(alpha = 0.8f),
+                                lineHeight = 15.sp,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Button(
+                                onClick = {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=${video.videoId}"))
+                                    context.startActivity(intent)
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = SafetyCoral),
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("பார்க்க / Watch Video", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
                     }
@@ -1737,4 +2066,345 @@ fun AddContactDialog(
         },
         containerColor = SurfaceDark
     )
+}
+
+// Data models and assets for the Tamil Defense Video library
+data class DefenseVideo(
+    val title: String,
+    val tamilTitle: String,
+    val description: String,
+    val tamilDesc: String,
+    val duration: String,
+    val videoId: String
+)
+
+val tamilDefenseVideos = listOf(
+    DefenseVideo(
+        title = "Easy Self Defense for Women",
+        tamilTitle = "பெண்களுக்கான எளிய தற்காப்பு முறைகள்",
+        description = "Simple physical moves to escape sudden grabs, punches, or hostile holds.",
+        tamilDesc = "திடீர் தாக்குதல்கள் மற்றும் பிடிகளில் இருந்து தப்பிக்க எளிய தற்காப்பு வழிகள்.",
+        duration = "8:25 mins",
+        videoId = "A2G5D8zX0Fk"
+    ),
+    DefenseVideo(
+        title = "Escape from Wrist Grabs & Neck Locks",
+        tamilTitle = "கைப்பிடியில் இருந்து தப்பிப்பது எப்படி?",
+        description = "Effective leverage tricks to break out of tight wrist, arm, and hair locks.",
+        tamilDesc = "எதிரி கைகளை அல்லது கழுத்தை பிடிக்கும் போது நொடியில் தப்பிக்கும் உத்திகள்.",
+        duration = "5:40 mins",
+        videoId = "Kz6lS9j1L78"
+    ),
+    DefenseVideo(
+        title = "Kavalan Safety App & Awareness Guide",
+        tamilTitle = "காவலன் செயலி மற்றும் தற்காப்பு விழிப்புணர்வு",
+        description = "Tamil Nadu police official recommendations and emergency response guide.",
+        tamilDesc = "தமிழ்நாடு காவல்துறையின் காவலன் செயலி பயன்பாடு மற்றும் அவசர கால வழிகாட்டி.",
+        duration = "10:15 mins",
+        videoId = "F0S_7E_j6U0"
+    ),
+    DefenseVideo(
+        title = "Using Umbrella and Everyday Objects",
+        tamilTitle = "அன்றாட பொருட்கள் தற்காப்பு முறைகள்",
+        description = "How to transform keychains, umbrellas, or pens into tactical safety items.",
+        tamilDesc = "குடை, பேனா, சாவிக்கொத்து போன்ற அன்றாட பொருட்களை தற்காப்பு ஆயுதமாக மாற்றுவது.",
+        duration = "6:50 mins",
+        videoId = "UqQY9318q0U"
+    )
+)
+
+@Composable
+fun AiAssistantView(viewModel: KavalanViewModel) {
+    val aiResponse by viewModel.aiResponse.collectAsState()
+    val aiRiskLevel by viewModel.aiRiskLevel.collectAsState()
+    val aiGuidance by viewModel.aiGuidance.collectAsState()
+    val isAiLoading by viewModel.isAiLoading.collectAsState()
+    val context = LocalContext.current
+
+    var scenarioText by remember { mutableStateOf("") }
+
+    val quickScenarios = listOf(
+        "Someone is following me down a dark alley in Chennai, I'm very scared.",
+        "The auto driver took a wrong turn into an isolated field and locked the doors.",
+        "A stranger is staring aggressively on the bus and moving closer to me.",
+        "I feel slightly uneasy walking back home alone in Coimbatore."
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Kavalan AI Guard",
+            fontWeight = FontWeight.Black,
+            fontSize = 22.sp,
+            color = TextLight
+        )
+        Text(
+            text = "AI-powered real-time incident detector & situational danger assessment.",
+            fontSize = 11.sp,
+            color = TextMuted,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = SurfaceDark),
+            border = BorderStroke(1.dp, Color(0xFFCAC4D0)),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                Text(
+                    text = "DESCRIBE WHAT IS HAPPENING:",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SafetyCoral,
+                    letterSpacing = 0.5.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                OutlinedTextField(
+                    value = scenarioText,
+                    onValueChange = { scenarioText = it },
+                    placeholder = { Text("Example: A stranger is following me on Kutchery Road, Mylapore...", fontSize = 13.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(110.dp),
+                    maxLines = 4,
+                    textStyle = LocalTextStyle.current.copy(fontSize = 13.sp)
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.assessSituation(scenarioText)
+                    },
+                    enabled = scenarioText.isNotBlank() && !isAiLoading,
+                    colors = ButtonDefaults.buttonColors(containerColor = SafetyCoral),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    if (isAiLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Detecting Threats...", fontWeight = FontWeight.Bold)
+                    } else {
+                        Icon(Icons.Filled.AutoAwesome, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Analyze Situation & Detect Risk", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Quick assess suggestions
+        Text(
+            text = "QUICK ASSESS PRESETS:",
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextMuted,
+            letterSpacing = 0.5.sp,
+            modifier = Modifier.padding(bottom = 6.dp)
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(quickScenarios) { scenario ->
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFEADDFF).copy(alpha = 0.4f))
+                        .clickable {
+                            scenarioText = scenario
+                            viewModel.assessSituation(scenario)
+                        }
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .widthIn(max = 200.dp)
+                ) {
+                    Text(
+                        text = scenario,
+                        fontSize = 11.sp,
+                        color = TextLight,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // AI Assessment Result Screen
+        if (aiResponse != null || aiGuidance != null) {
+            val riskColor = when (aiRiskLevel) {
+                "CRITICAL" -> Color(0xFFB3261E)
+                "HIGH" -> Color(0xFFC33D12)
+                "MEDIUM" -> Color(0xFFE65100)
+                else -> Color(0xFF2E7D32)
+            }
+            
+            val riskBg = when (aiRiskLevel) {
+                "CRITICAL" -> Color(0xFFF9DEDC)
+                "HIGH" -> Color(0xFFFBE9E7)
+                "MEDIUM" -> Color(0xFFFFF3E0)
+                else -> Color(0xFFE8F5E9)
+            }
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = riskBg),
+                border = BorderStroke(1.5.dp, riskColor),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "INCIDENT DETECTION ANALYSIS",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = riskColor,
+                                letterSpacing = 0.5.sp
+                            )
+                            
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(riskColor)
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = aiRiskLevel,
+                                    color = Color.White,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Black
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    item {
+                        Text(
+                            text = aiResponse ?: "",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextLight,
+                            lineHeight = 18.sp
+                        )
+                    }
+
+                    if (aiGuidance != null) {
+                        item {
+                            Divider(color = riskColor.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 4.dp))
+                            
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Filled.Shield,
+                                    contentDescription = null,
+                                    tint = riskColor,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "AI RESCUE INSTRUCTIONS:",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = riskColor,
+                                    letterSpacing = 0.5.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = aiGuidance ?: "",
+                                fontSize = 13.sp,
+                                color = TextMuted,
+                                lineHeight = 17.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+
+                    // Dangerous situation -> offer immediate Auto-Trigger SOS or Sirens
+                    if (aiRiskLevel == "HIGH" || aiRiskLevel == "CRITICAL") {
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(
+                                onClick = {
+                                    viewModel.triggerSosAlert { targetPhone ->
+                                        val callIntent = Intent(Intent.ACTION_CALL).apply {
+                                            data = Uri.parse("tel:$targetPhone")
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
+                                        context.startActivity(callIntent)
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = SafetyAmber),
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Icon(Icons.Filled.Emergency, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("AUTO-TRIGGER RESCUE SOS NOW", fontWeight = FontWeight.Black)
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // Initial/Empty State
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(Color.White.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                    .border(1.dp, Color(0xFFCAC4D0).copy(alpha = 0.5f), RoundedCornerShape(16.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.AutoAwesome,
+                        contentDescription = "AI Waiting",
+                        tint = TextMuted.copy(alpha = 0.4f),
+                        modifier = Modifier.size(60.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "AI Incident Detector",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = TextLight
+                    )
+                    Text(
+                        text = "Type or select an incident scenario above. Gemini will instantly evaluate danger levels and prescribe step-by-step rescue plans.",
+                        fontSize = 11.sp,
+                        color = TextMuted,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 15.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                    )
+                }
+            }
+        }
+    }
 }
